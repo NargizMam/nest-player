@@ -23,12 +23,20 @@ export class ArtistsController {
 
   @Get()
   getAll() {
-    return this.artistModel.find();
+    const allArtist = this.artistModel.find();
+    if (!allArtist) {
+      throw new Error('Исполнители не найдены');
+    }
+    return allArtist;
   }
 
   @Get(':id')
   getOne(@Param('id') id: string) {
-    return this.artistModel.findById(id);
+    const selectArtist = this.artistModel.findById(id);
+    if (!selectArtist) {
+      throw new Error('Исполнитель не был найден');
+    }
+    return selectArtist;
   }
 
   @Post()
@@ -45,13 +53,16 @@ export class ArtistsController {
       isPublished: artistDto.isPublished,
       image: file ? '/uploads/artists/' + file.filename : null,
     });
-    return newArtist.save();
+    await newArtist.save();
+    return 'Исполнитель успешно создан!';
   }
 
   @Delete(':id')
   async deleteArtist(@Param('id') id: string) {
-    console.log(id);
-    await this.artistModel.findByIdAndDelete(id);
+    const deletedArtist = await this.artistModel.findByIdAndDelete(id);
+    if (!deletedArtist) {
+      throw new Error('Исполнитель возможно был удален');
+    }
     return 'Исполнитель успешно удален!';
   }
 }
