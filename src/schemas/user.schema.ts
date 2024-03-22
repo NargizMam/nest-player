@@ -3,7 +3,7 @@ import Document from 'mongoose';
 import bcrypt from 'bcrypt';
 
 export interface UserMethods {
-  generateToken: () => void;
+  generateToken(): void;
   checkPassword(password: string): Promise<boolean>;
 }
 const SALT_WORK_FACTOR = 10;
@@ -18,8 +18,11 @@ export class User {
   @Prop({ required: true })
   token: string;
 
-  @Prop()
+  @Prop({ required: true })
   displayName: string;
+
+  @Prop()
+  avatar: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

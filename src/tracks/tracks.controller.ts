@@ -7,10 +7,11 @@ import {
   Param,
   Post,
   Query,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Track, TrackDocument } from '../schemas/track.schema';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { CreateTrackDto } from './create-track.dto';
 
 @Controller('tracks')
@@ -38,15 +39,22 @@ export class TracksController {
   }
   @Post()
   async create(@Body() trackDto: CreateTrackDto) {
-    const newTrack = new this.trackModel({
-      title: trackDto.title,
-      album: trackDto.album,
-      duration: trackDto.duration,
-      serialNumber: trackDto.serialNumber,
-      isPublished: trackDto.isPublished,
-    });
-    await newTrack.save();
-    return 'Трек успешно создан!';
+    try {
+      const newTrack = new this.trackModel({
+        title: trackDto.title,
+        album: trackDto.album,
+        duration: trackDto.duration,
+        serialNumber: trackDto.serialNumber,
+        isPublished: trackDto.isPublished,
+      });
+      await newTrack.save();
+      return 'Трек успешно создан!';
+    } catch (e) {
+      if (e instanceof mongoose.Error.ValidationError) {
+        throw new UnprocessableEntityException(e);
+      }
+      throw e;
+    }
   }
   @Delete(':id')
   async deleteTrack(@Param('id') id: string) {
@@ -54,10 +62,7 @@ export class TracksController {
     if (deletedTrack) {
       return 'Трек успешно удален!';
     } else {
-      throw new NotFoundException({
-        cause: new Error(),
-        description: 'Возможно, трек был удален',
-      });
+      throw new NotFoundException('Возможно, трек был удален');
     }
   }
 }

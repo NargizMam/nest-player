@@ -2,21 +2,21 @@ import {
   Body,
   Controller,
   Delete,
-  Get, NotFoundException,
+  Get,
+  NotFoundException,
   Param,
   Post,
   UnprocessableEntityException,
   UploadedFile,
-  UseInterceptors
-} from "@nestjs/common";
-import { Artist, ArtistDocument } from "../schemas/artist.schema";
-import { InjectModel } from "@nestjs/mongoose";
-import mongoose, { Model } from "mongoose";
-import { CreateArtistsDto } from "./create-artists.dto";
-import { FileInterceptor } from "@nestjs/platform-express";
-import { diskStorage } from "multer";
-import { extname } from "path";
-import { UnknownElementException } from "@nestjs/core/errors/exceptions";
+  UseInterceptors,
+} from '@nestjs/common';
+import { Artist, ArtistDocument } from '../schemas/artist.schema';
+import { InjectModel } from '@nestjs/mongoose';
+import mongoose, { Model } from 'mongoose';
+import { CreateArtistsDto } from './create-artists.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 
 @Controller('artists')
 export class ArtistsController {
