@@ -2,19 +2,21 @@ import {
   Body,
   Controller,
   Delete,
-  Get,
+  Get, NotFoundException,
   Param,
   Post,
+  UnprocessableEntityException,
   UploadedFile,
-  UseInterceptors,
-} from '@nestjs/common';
-import { Artist, ArtistDocument } from '../schemas/artist.schema';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { CreateArtistsDto } from './create-artists.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
+  UseInterceptors
+} from "@nestjs/common";
+import { Artist, ArtistDocument } from "../schemas/artist.schema";
+import { InjectModel } from "@nestjs/mongoose";
+import mongoose, { Model } from "mongoose";
+import { CreateArtistsDto } from "./create-artists.dto";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { diskStorage } from "multer";
+import { extname } from "path";
+import { UnknownElementException } from "@nestjs/core/errors/exceptions";
 
 @Controller('artists')
 export class ArtistsController {
@@ -25,18 +27,14 @@ export class ArtistsController {
 
   @Get()
   getAll() {
-    const allArtist = this.artistModel.find();
-    if (!allArtist) {
-      throw new Error('Исполнители не найдены');
-    }
-    return allArtist;
+    return this.artistModel.find();
   }
 
   @Get(':id')
   getOne(@Param('id') id: string) {
     const selectArtist = this.artistModel.findById(id);
     if (!selectArtist) {
-      throw new Error('Исполнитель не был найден');
+      throw new NotFoundException('Исполнитель не был найден');
     }
     return selectArtist;
   }
@@ -60,21 +58,28 @@ export class ArtistsController {
     @UploadedFile() file: Express.Multer.File,
     @Body() artistDto: CreateArtistsDto,
   ) {
-    const newArtist = new this.artistModel({
-      title: artistDto.title,
-      description: artistDto.description,
-      isPublished: artistDto.isPublished,
-      image: file ? '/uploads/artists/' + file.filename : null,
-    });
-    await newArtist.save();
-    return 'Исполнитель успешно создан!';
+    try {
+      const newArtist = new this.artistModel({
+        title: artistDto.title,
+        description: artistDto.description,
+        isPublished: artistDto.isPublished,
+        image: file ? '/uploads/artists/' + file.filename : null,
+      });
+      await newArtist.save();
+      return 'Исполнитель успешно создан!';
+    } catch (e) {
+      if (e instanceof mongoose.Error.ValidationError) {
+        throw new UnprocessableEntityException(e);
+      }
+      throw e;
+    }
   }
 
   @Delete(':id')
   async deleteArtist(@Param('id') id: string) {
     const deletedArtist = await this.artistModel.findByIdAndDelete(id);
     if (!deletedArtist) {
-      throw new Error('Исполнитель возможно был удален');
+      throw new NotFoundException('Исполнитель возможно был удален');
     }
     return 'Исполнитель успешно удален!';
   }

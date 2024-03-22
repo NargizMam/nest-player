@@ -2,14 +2,15 @@ import {
   Body,
   Controller,
   Delete,
-  Get,
+  Get, NotFoundException,
   Param,
   Post,
   Query,
+  UnprocessableEntityException,
   UploadedFile,
-  UseInterceptors,
-} from '@nestjs/common';
-import { Model } from 'mongoose';
+  UseInterceptors
+} from "@nestjs/common";
+import mongoose, { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Album, AlbumDocument } from '../schemas/album.schema';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -48,7 +49,7 @@ export class AlbumsController {
       .findById(id)
       .populate('artist', 'title');
     if (!selectAlbum) {
-      throw new Error('Альбо не найден!');
+      throw new NotFoundException('Альбом не был найден');
     }
     return selectAlbum;
   }
@@ -72,16 +73,23 @@ export class AlbumsController {
     @UploadedFile() file: Express.Multer.File,
     @Body() albumsDto: CreateAlbumsDto,
   ) {
-    const newAlbum = new this.albumModel({
-      title: albumsDto.title,
-      artist: albumsDto.artist,
-      issueDate: albumsDto.issueDate,
-      description: albumsDto.description,
-      isPublished: albumsDto.isPublished,
-      image: file ? '/uploads/albums/' + file.filename : null,
-    });
-    await newAlbum.save();
-    return 'Альбом успешно создан!';
+    try {
+      const newAlbum = new this.albumModel({
+        title: albumsDto.title,
+        artist: albumsDto.artist,
+        issueDate: albumsDto.issueDate,
+        description: albumsDto.description,
+        isPublished: albumsDto.isPublished,
+        image: file ? '/uploads/albums/' + file.filename : null,
+      });
+      await newAlbum.save();
+      return 'Альбом успешно создан!';
+    } catch (e) {
+      if (e instanceof mongoose.Error.ValidationError) {
+        throw new UnprocessableEntityException(e);
+      }
+      throw e;
+    }
   }
 
   @Delete(':id')
@@ -90,7 +98,7 @@ export class AlbumsController {
     if (deletedAlbum) {
       return 'Альбом успешно удален!';
     } else {
-      throw new Error('Данный альбом возможно удален!');
+      throw new NotFoundException('Исполнитель возможно был удален');
     }
   }
 }
