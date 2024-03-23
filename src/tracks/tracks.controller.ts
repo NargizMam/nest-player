@@ -7,12 +7,13 @@ import {
   Param,
   Post,
   Query,
-  UnprocessableEntityException,
-} from '@nestjs/common';
+  UnprocessableEntityException, UseGuards
+} from "@nestjs/common";
 import { InjectModel } from '@nestjs/mongoose';
 import { Track, TrackDocument } from '../schemas/track.schema';
 import mongoose, { Model } from 'mongoose';
 import { CreateTrackDto } from './create-track.dto';
+import { TokenAuthGuard } from "../auth/token-auth.guard";
 
 @Controller('tracks')
 export class TracksController {
@@ -37,6 +38,8 @@ export class TracksController {
     tracksList = await this.trackModel.find().populate('artist', 'title');
     return tracksList;
   }
+
+  @UseGuards(TokenAuthGuard)
   @Post()
   async create(@Body() trackDto: CreateTrackDto) {
     try {

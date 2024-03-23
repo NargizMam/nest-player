@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import * as bcrypt from 'bcrypt';
 import Document from 'mongoose';
-import bcrypt from 'bcrypt';
 
 export interface UserMethods {
   generateToken(): void;
@@ -31,19 +31,20 @@ UserSchema.methods.generateToken = function () {
   this.token = crypto.randomUUID();
 };
 
-UserSchema.methods.checkPassword = function (password: string) {
-  return bcrypt.compare(password, this.password);
+UserSchema.methods.checkPassword = function (pass: string) {
+  return bcrypt.compare(pass, this.password);
 };
 
 UserSchema.pre('save', async function () {
-  if (this.isModified('password')) return;
+  if (!this.isModified('password')) return;
 
   const salt = await bcrypt.genSalt(SALT_WORK_FACTOR);
   this.password = await bcrypt.hash(this.password, salt);
+  console.log(this.password);
 });
 
 UserSchema.set('toJSON', {
-  transform: (doc, ret) => {
+  transform: (_doc, ret) => {
     delete ret.password;
     return ret;
   },

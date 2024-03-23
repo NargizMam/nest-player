@@ -7,9 +7,9 @@ import {
   Param,
   Post,
   UnprocessableEntityException,
-  UploadedFile,
-  UseInterceptors,
-} from '@nestjs/common';
+  UploadedFile, UseGuards,
+  UseInterceptors
+} from "@nestjs/common";
 import { Artist, ArtistDocument } from '../schemas/artist.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
@@ -17,6 +17,7 @@ import { CreateArtistsDto } from './create-artists.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+import { TokenAuthGuard } from "../auth/token-auth.guard";
 
 @Controller('artists')
 export class ArtistsController {
@@ -39,6 +40,7 @@ export class ArtistsController {
     return selectArtist;
   }
 
+  @UseGuards(TokenAuthGuard)
   @Post()
   @UseInterceptors(
     FileInterceptor('image', {

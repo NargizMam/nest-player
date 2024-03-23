@@ -2,12 +2,13 @@ import {
   Body,
   Controller,
   Delete,
-  Get, NotFoundException,
+  Get,
+  NotFoundException,
   Param,
   Post,
   Query,
   UnprocessableEntityException,
-  UploadedFile,
+  UploadedFile, UseGuards,
   UseInterceptors
 } from "@nestjs/common";
 import mongoose, { Model } from 'mongoose';
@@ -17,6 +18,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateAlbumsDto } from './create-albums.dto';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+import { TokenAuthGuard } from "../auth/token-auth.guard";
 
 @Controller('albums')
 export class AlbumsController {
@@ -54,6 +56,7 @@ export class AlbumsController {
     return selectAlbum;
   }
 
+  @UseGuards(TokenAuthGuard)
   @Post()
   @UseInterceptors(
     FileInterceptor('image', {
