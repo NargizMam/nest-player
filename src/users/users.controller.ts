@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Delete,
-  Param,
   Post,
   Req,
   UnprocessableEntityException,
@@ -47,7 +46,6 @@ export class UsersController {
     @Body() registerUserDto: RegisterUserDto,
   ) {
     try {
-      console.log(registerUserDto);
       const user = new this.userModel({
         email: registerUserDto.email,
         password: registerUserDto.password,

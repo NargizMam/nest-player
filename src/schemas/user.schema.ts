@@ -18,6 +18,9 @@ export class User {
   @Prop({ required: true })
   token: string;
 
+  @Prop({ required: true, enum: ['admin', 'user'], default: 'user' })
+  role: string;
+
   @Prop({ required: true })
   displayName: string;
 
@@ -40,7 +43,6 @@ UserSchema.pre('save', async function () {
 
   const salt = await bcrypt.genSalt(SALT_WORK_FACTOR);
   this.password = await bcrypt.hash(this.password, salt);
-  console.log(this.password);
 });
 
 UserSchema.set('toJSON', {

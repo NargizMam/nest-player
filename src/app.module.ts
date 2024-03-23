@@ -14,6 +14,7 @@ import { AuthService } from './auth/auth.service';
 import { LocalStrategy } from './auth/local.strategy';
 import { TokenAuthGuard } from './auth/token-auth.guard';
 import { PassportModule } from '@nestjs/passport';
+import { RolesGuard } from './auth/role-auth.guard';
 
 @Module({
   imports: [
@@ -33,6 +34,12 @@ import { PassportModule } from '@nestjs/passport';
     TracksController,
     UsersController,
   ],
-  providers: [AppService, AuthService, LocalStrategy, TokenAuthGuard],
+  providers: [
+    AppService,
+    AuthService,
+    LocalStrategy,
+    TokenAuthGuard,
+    RolesGuard,
+  ],
 })
 export class AppModule {}

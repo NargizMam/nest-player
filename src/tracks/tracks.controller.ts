@@ -7,13 +7,15 @@ import {
   Param,
   Post,
   Query,
-  UnprocessableEntityException, UseGuards
-} from "@nestjs/common";
+  UnprocessableEntityException,
+  UseGuards,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Track, TrackDocument } from '../schemas/track.schema';
 import mongoose, { Model } from 'mongoose';
 import { CreateTrackDto } from './create-track.dto';
-import { TokenAuthGuard } from "../auth/token-auth.guard";
+import { TokenAuthGuard } from '../auth/token-auth.guard';
+import { Roles, RolesGuard } from "../auth/role-auth.guard";
 
 @Controller('tracks')
 export class TracksController {
@@ -39,8 +41,8 @@ export class TracksController {
     return tracksList;
   }
 
-  @UseGuards(TokenAuthGuard)
   @Post()
+  @UseGuards(TokenAuthGuard)
   async create(@Body() trackDto: CreateTrackDto) {
     try {
       const newTrack = new this.trackModel({
@@ -59,7 +61,10 @@ export class TracksController {
       throw e;
     }
   }
+
   @Delete(':id')
+  @Roles(['admin'])
+  @UseGuards(TokenAuthGuard, RolesGuard)
   async deleteTrack(@Param('id') id: string) {
     const deletedTrack = await this.trackModel.findByIdAndDelete(id);
     if (deletedTrack) {
