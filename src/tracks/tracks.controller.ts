@@ -50,7 +50,6 @@ export class TracksController {
         album: trackDto.album,
         duration: trackDto.duration,
         serialNumber: trackDto.serialNumber,
-        isPublished: trackDto.isPublished,
       });
       await newTrack.save();
       return 'Трек успешно создан!';
@@ -65,8 +64,8 @@ export class TracksController {
   @Delete(':id')
   @Roles(['admin'])
   @UseGuards(TokenAuthGuard, RolesGuard)
-  async deleteTrack(@Param('id') id: string) {
-    const deletedTrack = await this.trackModel.findByIdAndDelete(id);
+  deleteTrack(@Param('id') id: string) {
+    const deletedTrack = this.trackModel.findByIdAndDelete(id);
     if (deletedTrack) {
       return 'Трек успешно удален!';
     } else {

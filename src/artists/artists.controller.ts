@@ -66,7 +66,6 @@ export class ArtistsController {
       const newArtist = new this.artistModel({
         title: artistDto.title,
         description: artistDto.description,
-        isPublished: artistDto.isPublished,
         image: file ? '/uploads/artists/' + file.filename : null,
       });
       await newArtist.save();
@@ -82,8 +81,8 @@ export class ArtistsController {
   @Delete(':id')
   @Roles(['admin'])
   @UseGuards(TokenAuthGuard, RolesGuard)
-  async deleteArtist(@Param('id') id: string) {
-    const deletedArtist = await this.artistModel.findByIdAndDelete(id);
+  deleteArtist(@Param('id') id: string) {
+    const deletedArtist = this.artistModel.findByIdAndDelete(id);
     if (!deletedArtist) {
       throw new NotFoundException('Исполнитель возможно был удален');
     }

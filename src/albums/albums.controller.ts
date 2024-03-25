@@ -48,8 +48,8 @@ export class AlbumsController {
   }
 
   @Get(':id')
-  async getOne(@Param('id') id: string) {
-    const selectAlbum = await this.albumModel
+  getOne(@Param('id') id: string) {
+    const selectAlbum = this.albumModel
       .findById(id)
       .populate('artist', 'title');
     if (!selectAlbum) {
@@ -84,7 +84,6 @@ export class AlbumsController {
         artist: albumsDto.artist,
         issueDate: albumsDto.issueDate,
         description: albumsDto.description,
-        isPublished: albumsDto.isPublished,
         image: file ? '/uploads/albums/' + file.filename : null,
       });
       await newAlbum.save();
@@ -100,8 +99,8 @@ export class AlbumsController {
   @Delete(':id')
   @Roles(['admin'])
   @UseGuards(TokenAuthGuard, RolesGuard)
-  async deleteAlbum(@Param('id') id: string) {
-    const deletedAlbum = await this.albumModel.findByIdAndDelete(id);
+  deleteAlbum(@Param('id') id: string) {
+    const deletedAlbum = this.albumModel.findByIdAndDelete(id);
     if (deletedAlbum) {
       return 'Альбом успешно удален!';
     } else {

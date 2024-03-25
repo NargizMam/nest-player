@@ -16,7 +16,7 @@ export class Track {
   @Prop({ required: true })
   serialNumber: number;
 
-  @Prop({ required: true })
+  @Prop({ required: true, default: false })
   isPublished: boolean;
 }
 

@@ -13,7 +13,7 @@ export class Album {
   @Prop({ required: true })
   issueDate: number;
 
-  @Prop({ required: true })
+  @Prop({ required: true, default: false })
   isPublished: boolean;
 
   @Prop()
