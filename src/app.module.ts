@@ -15,10 +15,11 @@ import { LocalStrategy } from './auth/local.strategy';
 import { TokenAuthGuard } from './auth/token-auth.guard';
 import { PassportModule } from '@nestjs/passport';
 import { RolesGuard } from './auth/role-auth.guard';
+import { DB_URL } from './constants';
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://localhost/nest-player'),
+    MongooseModule.forRoot(DB_URL),
     MongooseModule.forFeature([
       { name: Artist.name, schema: ArtistSchema },
       { name: Album.name, schema: AlbumSchema },
